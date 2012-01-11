@@ -1,9 +1,10 @@
 JSRepeater is a simple and intuitive Javascript Templating system provided as a jQuery plugin.
+
 See the following example that binds JSON data to a div.
 
 # $('#myDiv').fillTemplate(myData);
 
-Binding to an hierarchy
+**Binding to an hierarchy**
 
 Have a look at the JSON object below, it could be a list of categories and subcategories for a computer store.
 
@@ -95,4 +96,83 @@ Thursday
 Friday
 Saturday
 Sunday
-	
+
+
+
+**Numbering**
+
+The repeater will output the number of the item wherever it finds the #{} directive. For example
+
+	<ul id='Listofdays3' >
+		<li>${Name} is day number #{}</li>
+	</ul>
+
+will produce
+
+Monday is day number 1
+Tuesday is day number 2
+Wednesday is day number 3
+Thursday is day number 4
+Friday is day number 5
+Saturday is day number 6
+Sunday is day number 7
+
+**Output Formatting**
+
+You can provide a formatting function to any data output by the repeater using the following format ${property:functionname}. Consider the following function which pads a string to 20 characters:
+
+	function pad(s){
+		while (s.length < 20) { s += '+'; }
+		return s;
+	}
+
+We can apply this function to the output using the following template
+
+	<ul id='Listofdays4' >
+		<li>${Name:pad}</li>
+	</ul>
+
+The repeater sends whatever it finds in the 'Name' property of each object to the pad function and whatever is returned from the pad function will be output to the document
+
+Monday++++++++++++++
+Tuesday+++++++++++++
+Wednesday+++++++++++
+Thursday++++++++++++
+Friday++++++++++++++
+Saturday++++++++++++
+Sunday++++++++++++++
+
+
+**Recursion**
+
+Image a bulletin board. A post has replies, each replies has further replies, each of those replies ... you get the idea. 
+The problem here is that you have a hierarchy of data that might go to infinite depth. 
+You can't create a template for each possible reply and sub-reply and sub-sub-reply, this is where recursion comes in. !{10} means, re-evaluate this template on the next level down and stop when we reached the 10th level.
+
+Assume the following data
+
+	var data = {'replies' : 
+					[{'subject' : 'Reply 1', 'replies' : 
+					  [{'subject' : 'Reply 1.1', 'replies' : 
+						[{'subject' : 'Reply 1.1.1', 'replies' : 
+						  [{'subject' : 'Reply 1.1.1.1', 'replies' : []}]}]}]}]};
+					  
+Now, assume we want to have each level down display a different background colour (alternating) and be indented by 30px, we could use the following CSS
+
+	.odd { margin-left:30px;  background-color:#cad0d5; }
+	.even { margin-left:30px; background-color:#dae1e6; }
+
+and then applying this template
+
+	<div id='list'>
+		<div context='replies' class='!%{even:odd}'>
+		${subject} !{10}
+		</div>
+	</div>
+
+we would get
+
+*Reply 1
+	*Reply 1.1
+		*Reply 1.1.1
+			*Reply 1.1.1.1
